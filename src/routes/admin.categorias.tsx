@@ -61,7 +61,7 @@ function AdminCategorias() {
                 <Label>Ícone</Label>
                 <div className="grid grid-cols-5 gap-2">
                   {iconOptions.map((n) => {
-                    const I = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[n];
+                    const I = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[n];
                     const active = form.icon === n;
                     return (
                       <button
@@ -105,7 +105,7 @@ function AdminCategorias() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence>
           {items.map((c, i) => {
-            const I = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[c.icon] ?? Icons.Tag;
+            const I = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[c.icon] ?? Icons.Tag;
             return (
               <motion.div
                 key={c.id}

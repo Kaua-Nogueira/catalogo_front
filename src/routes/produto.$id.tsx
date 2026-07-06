@@ -74,7 +74,7 @@ function ProductPage() {
             className="flex gap-3"
           >
             <div className="flex flex-col gap-2">
-              {product.images.map((img, i) => (
+              {product.images.map((img: string, i: number) => (
                 <button
                   key={img}
                   onClick={() => setActive(i)}

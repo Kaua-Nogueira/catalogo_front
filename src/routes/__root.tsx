@@ -92,6 +92,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Nimbus Store — Catálogo Digital Premium" },
+      { name: "description", content: "Catálogo digital moderno com experiência premium. Explore produtos selecionados e finalize seu pedido em minutos." },
+      { property: "og:description", content: "Catálogo digital moderno com experiência premium. Explore produtos selecionados e finalize seu pedido em minutos." },
+      { name: "twitter:description", content: "Catálogo digital moderno com experiência premium. Explore produtos selecionados e finalize seu pedido em minutos." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/56e4d9d8-d46d-4a79-9a46-0c7f88d21654/id-preview-8981fee1--6e0aeb23-cfd7-43cb-9b32-eda6e30eff07.lovable.app-1783358817596.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/56e4d9d8-d46d-4a79-9a46-0c7f88d21654/id-preview-8981fee1--6e0aeb23-cfd7-43cb-9b32-eda6e30eff07.lovable.app-1783358817596.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

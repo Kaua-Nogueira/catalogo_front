@@ -115,7 +115,7 @@ function ProductPage() {
 
             {product.badges && product.badges.length > 0 && (
               <div className="mt-3 flex gap-2">
-                {product.badges.map((b) => (
+                {product.badges.map((b: string) => (
                   <Badge key={b} variant="secondary" className="rounded-full text-[11px]">
                     {b === "novo" ? "Novo" : b === "promo" ? "Promoção" : "Mais vendido"}
                   </Badge>

@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -8,17 +8,21 @@ import { Badge } from "@/components/ui/badge";
 import { CartDrawer } from "@/components/store/cart-drawer";
 import { Footer } from "@/components/store/footer";
 import { useCart } from "@/stores/cart";
-import { companyDefaults, categories } from "@/data/mock";
+import { useStoreConfig, useCategories } from "@/hooks/useStoreData";
 import { cn } from "@/lib/utils";
 
 export function StoreLayout({ children }: { children: ReactNode }) {
   const { count, setOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: config } = useStoreConfig();
+  const { data: categories = [] } = useCategories();
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const nav = [
     { to: "/", label: "Início" },
     { to: "/produtos", label: "Produtos" },
+    { to: "/pedidos", label: "Meus Pedidos" },
   ];
 
   return (
@@ -30,7 +34,7 @@ export function StoreLayout({ children }: { children: ReactNode }) {
               <ShoppingBag className="h-4 w-4" />
             </div>
             <span className="hidden text-sm font-semibold tracking-tight sm:inline">
-              {companyDefaults.name}
+              {config?.name || "Nimbus Store"}
             </span>
           </Link>
 
@@ -54,38 +58,40 @@ export function StoreLayout({ children }: { children: ReactNode }) {
             <Input placeholder="Buscar produtos..." className="h-10 rounded-xl pl-9" />
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative rounded-xl"
-            onClick={() => setOpen(true)}
-            aria-label="Abrir carrinho"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            <AnimatePresence>
-              {count > 0 && (
-                <motion.span
-                  key={count}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -right-1 -top-1"
-                >
-                  <Badge className="h-5 min-w-5 rounded-full px-1 text-[10px]">{count}</Badge>
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Button>
+          <div className="ml-auto flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-xl"
+              onClick={() => setOpen(true)}
+              aria-label="Abrir carrinho"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              <AnimatePresence>
+                {count > 0 && (
+                  <motion.span
+                    key={count}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground shadow-sm"
+                  >
+                    {count}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl md:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Menu"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl md:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Menu"
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
 
         <AnimatePresence>
@@ -119,15 +125,16 @@ export function StoreLayout({ children }: { children: ReactNode }) {
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {categories.map((c) => (
-                      <Link
+                      <button
                         key={c.id}
-                        to="/produtos"
-                        
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          navigate({ to: "/produtos", search: { cat: c.id } as any });
+                        }}
+                        className="rounded-lg px-3 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
                       >
                         {c.name}
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 </div>

@@ -14,6 +14,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/stores/auth";
+import { LogOut } from "lucide-react";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -67,12 +69,26 @@ export function AdminLayout() {
             );
           })}
         </nav>
-        <div className="border-t border-border p-2">
+        <div className="border-t border-border p-2 space-y-1">
+          <button
+            onClick={() => {
+              useAuth.getState().logout();
+              if (typeof window !== "undefined") {
+                window.location.href = "/login";
+              }
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Sair</span>}
+          </button>
           <button
             onClick={() => setCollapsed((v) => !v)}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
-            <ChevronLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
+            <ChevronLeft
+              className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")}
+            />
             {!collapsed && <span>Recolher</span>}
           </button>
         </div>
@@ -91,8 +107,22 @@ export function AdminLayout() {
             <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link to="/">Ver loja</Link>
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl text-muted-foreground hover:text-destructive"
+              onClick={() => {
+                useAuth.getState().logout();
+                if (typeof window !== "undefined") {
+                  window.location.href = "/login";
+                }
+              }}
+              title="Sair do painel"
+            >
+              <LogOut className="h-4.5 w-4.5" />
+            </Button>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-xs font-medium text-primary-foreground">
-              NM
+              AD
             </div>
           </div>
         </header>

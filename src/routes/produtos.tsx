@@ -6,7 +6,7 @@ import { StoreLayout } from "@/components/store/store-layout";
 import { ProductCard } from "@/components/store/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { products, categories } from "@/data/mock";
+import { useProducts, useCategories } from "@/hooks/useStoreData";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/produtos")({
@@ -24,15 +24,15 @@ function ProdutosPage() {
   const [cat, setCat] = useState<string | null>(null);
   const [sort, setSort] = useState<"recent" | "asc" | "desc">("recent");
 
-  const list = useMemo(() => {
-    let l = products.slice();
-    if (cat) l = l.filter((p) => p.categoryId === cat);
-    if (query) l = l.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));
-    if (sort === "asc") l.sort((a, b) => a.price - b.price);
-    else if (sort === "desc") l.sort((a, b) => b.price - a.price);
-    else l.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return l;
-  }, [query, cat, sort]);
+  const { data: categories = [], isLoading: isLoadingCats } = useCategories();
+  const { data: productsData, isLoading: isLoadingProducts } = useProducts({
+    search: query,
+    category_id: cat,
+    sort: sort,
+  });
+
+  const list = productsData?.data || [];
+  const isLoading = isLoadingCats || isLoadingProducts;
 
   return (
     <StoreLayout>
@@ -95,9 +95,7 @@ function ProdutosPage() {
         {list.length === 0 ? (
           <div className="mt-16 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border py-20 text-center">
             <p className="text-base font-medium">Nenhum produto encontrado</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Tente ajustar sua busca ou filtros
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Tente ajustar sua busca ou filtros</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">

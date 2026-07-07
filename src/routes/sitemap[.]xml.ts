@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import axios from "axios";
 import type {} from "@tanstack/react-start";
 
 const BASE_URL = "";
@@ -13,11 +14,23 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const { products } = await import("@/data/mock");
+        let products = [];
+        try {
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL || "http://localhost:8001/api/v1"}/store/products`,
+          );
+          products = res.data?.data || [];
+        } catch (e) {
+          console.error(e);
+        }
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/produtos", changefreq: "daily", priority: "0.9" },
-          ...products.map((p) => ({ path: `/produto/${p.id}`, changefreq: "weekly" as const, priority: "0.7" })),
+          ...products.map((p) => ({
+            path: `/produto/${p.slug || p.id}`,
+            changefreq: "weekly" as const,
+            priority: "0.7",
+          })),
         ];
 
         const urls = entries.map((e) =>
@@ -27,7 +40,9 @@ export const Route = createFileRoute("/sitemap.xml")({
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,
-          ].filter(Boolean).join("\n"),
+          ]
+            .filter(Boolean)
+            .join("\n"),
         );
 
         const xml = [

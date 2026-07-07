@@ -14,28 +14,43 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { categories as seed } from "@/data/mock";
+import { useAdminCategories, useCreateCategory, useDeleteCategory } from "@/hooks/useAdminData";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export const Route = createFileRoute("/admin/categorias")({
   component: AdminCategorias,
 });
 
-const iconOptions = ["Cpu", "Shirt", "Sofa", "Sparkles", "Dumbbell", "Watch", "Tag", "Gift", "Coffee", "Book"];
+const iconOptions = [
+  "Cpu",
+  "Shirt",
+  "Sofa",
+  "Sparkles",
+  "Dumbbell",
+  "Watch",
+  "Tag",
+  "Gift",
+  "Coffee",
+  "Book",
+];
 
 function AdminCategorias() {
-  const [items, setItems] = useState(seed);
+  const { data: items = [], isLoading } = useAdminCategories();
+  const createCategory = useCreateCategory();
+  const deleteCategory = useDeleteCategory();
   const [open, setOpen] = useState(false);
+  const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", icon: "Tag" });
+
+  if (isLoading) return <div className="p-20 text-center">Carregando categorias...</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Categorias</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Organize seus produtos em categorias
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Organize seus produtos em categorias</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -61,14 +76,21 @@ function AdminCategorias() {
                 <Label>Ícone</Label>
                 <div className="grid grid-cols-5 gap-2">
                   {iconOptions.map((n) => {
-                    const I = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[n];
+                    const I = (
+                      Icons as unknown as Record<
+                        string,
+                        React.ComponentType<{ className?: string }>
+                      >
+                    )[n];
                     const active = form.icon === n;
                     return (
                       <button
                         key={n}
                         onClick={() => setForm({ ...form, icon: n })}
                         className={`grid h-11 place-items-center rounded-xl border transition ${
-                          active ? "border-foreground bg-primary-soft" : "border-border hover:border-foreground/40"
+                          active
+                            ? "border-foreground bg-primary-soft"
+                            : "border-border hover:border-foreground/40"
                         }`}
                       >
                         {I ? <I className="h-4 w-4" /> : null}
@@ -84,18 +106,24 @@ function AdminCategorias() {
               </Button>
               <Button
                 className="rounded-xl"
+                disabled={createCategory.isPending}
                 onClick={() => {
                   if (!form.name) return;
-                  setItems((p) => [
-                    ...p,
-                    { id: `c${Date.now()}`, name: form.name, slug: form.name.toLowerCase(), icon: form.icon, productCount: 0 },
-                  ]);
-                  toast.success("Categoria criada");
-                  setForm({ name: "", icon: "Tag" });
-                  setOpen(false);
+                  const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                  createCategory.mutate(
+                    { ...form, slug },
+                    {
+                      onSuccess: () => {
+                        toast.success("Categoria criada");
+                        setForm({ name: "", icon: "Tag" });
+                        setOpen(false);
+                      },
+                      onError: () => toast.error("Erro ao criar categoria"),
+                    }
+                  );
                 }}
               >
-                Criar
+                {createCategory.isPending ? "Criando..." : "Criar"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -104,8 +132,11 @@ function AdminCategorias() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence>
-          {items.map((c, i) => {
-            const I = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[c.icon] ?? Icons.Tag;
+          {items.map((c: any, i: number) => {
+            const I =
+              (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[
+                c.icon
+              ] ?? Icons.Tag;
             return (
               <motion.div
                 key={c.id}
@@ -131,10 +162,7 @@ function AdminCategorias() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
-                    onClick={() => {
-                      setItems((p) => p.filter((x) => x.id !== c.id));
-                      toast.success("Categoria removida");
-                    }}
+                    onClick={() => setDeleteCategoryId(c.id)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -144,6 +172,25 @@ function AdminCategorias() {
           })}
         </AnimatePresence>
       </div>
+
+      <ConfirmDialog
+        open={deleteCategoryId !== null}
+        onOpenChange={(open) => !open && setDeleteCategoryId(null)}
+        title="Remover categoria"
+        description="Tem certeza que deseja remover esta categoria? Esta ação não pode ser desfeita."
+        isLoading={deleteCategory.isPending}
+        onConfirm={() => {
+          if (deleteCategoryId !== null) {
+            deleteCategory.mutate(deleteCategoryId, {
+              onSuccess: () => {
+                toast.success("Categoria removida");
+                setDeleteCategoryId(null);
+              },
+              onError: () => toast.error("Erro ao remover categoria"),
+            });
+          }
+        }}
+      />
     </div>
   );
 }

@@ -1,13 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Truck, ShieldCheck, Cpu, Shirt, Sofa, Dumbbell, Watch } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Truck,
+  ShieldCheck,
+  Cpu,
+  Shirt,
+  Sofa,
+  Dumbbell,
+  Watch,
+} from "lucide-react";
 import { StoreLayout } from "@/components/store/store-layout";
 import { ProductCard } from "@/components/store/product-card";
 import { Button } from "@/components/ui/button";
-import { products, categories } from "@/data/mock";
+import { useProducts, useCategories } from "@/hooks/useStoreData";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Cpu, Shirt, Sofa, Sparkles, Dumbbell, Watch,
+  Cpu,
+  Shirt,
+  Sofa,
+  Sparkles,
+  Dumbbell,
+  Watch,
 };
 
 export const Route = createFileRoute("/")({
@@ -15,8 +30,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const featured = products.filter((p) => p.badges?.length).slice(0, 4);
-  const all = products;
+  const { data: categories = [] } = useCategories();
+  const { data: productsData } = useProducts({});
+
+  const all = productsData?.data || [];
+  const featured = all.filter((p: any) => p.badges?.length).slice(0, 4);
 
   return (
     <StoreLayout>
@@ -31,7 +49,7 @@ function Index() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex flex-col justify-center"
+            className="flex flex-col justify-center items-center text-center md:items-start md:text-left"
           >
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border/70 bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground">
               <Sparkles className="h-3 w-3" /> Nova coleção 2026
@@ -45,25 +63,23 @@ function Index() {
               Um catálogo digital moderno, feito para você descobrir peças únicas e finalizar seu
               pedido em minutos — direto pelo WhatsApp ou PIX.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
               <Button asChild size="lg" className="h-12 rounded-xl px-6">
                 <Link to="/produtos">
                   Ver produtos <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="h-12 rounded-xl border-border px-6"
-              >
-                <Link to="/admin">Área administrativa</Link>
-              </Button>
             </div>
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2"><Truck className="h-4 w-4" /> Entrega ágil</div>
-              <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Compra segura</div>
-              <div className="flex items-center gap-2"><Sparkles className="h-4 w-4" /> Curadoria</div>
+            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 max-w-md text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Truck className="h-4 w-4" /> Entrega ágil
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> Compra segura
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> Curadoria
+              </div>
             </div>
           </motion.div>
 
@@ -74,11 +90,13 @@ function Index() {
             className="relative"
           >
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted shadow-elegant md:aspect-[5/6]">
-              <img
-                src={products[7].images[0]}
-                alt="Coleção em destaque"
-                className="h-full w-full object-cover"
-              />
+              {all[0]?.images?.[0] && (
+                <img
+                  src={(all[0].images[0].path ?? all[0].images[0])?.startsWith('/storage') ? `http://localhost:8001${all[0].images[0].path ?? all[0].images[0]}` : (all[0].images[0].path ?? all[0].images[0])}
+                  alt="Coleção em destaque"
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -89,9 +107,9 @@ function Index() {
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 Em destaque
               </p>
-              <p className="mt-1 text-sm font-semibold">{products[7].name}</p>
+              <p className="mt-1 text-sm font-semibold">{all[0]?.name}</p>
               <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                {products[7].description}
+                {all[0]?.description}
               </p>
             </motion.div>
           </motion.div>
@@ -103,9 +121,7 @@ function Index() {
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Categorias</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Explore por tipo de produto
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">Explore por tipo de produto</p>
           </div>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

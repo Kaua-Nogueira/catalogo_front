@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as PedidosRouteImport } from './routes/pedidos'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +31,16 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ProdutosRoute = ProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidosRoute = PedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -81,6 +93,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
+  '/pedidos': typeof PedidosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -93,6 +107,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
+  '/pedidos': typeof PedidosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
+  '/pedidos': typeof PedidosRoute
   '/produtos': typeof ProdutosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -122,6 +140,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
+    | '/login'
+    | '/pedidos'
     | '/produtos'
     | '/sitemap.xml'
     | '/admin/categorias'
@@ -134,6 +154,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
+    | '/login'
+    | '/pedidos'
     | '/produtos'
     | '/sitemap.xml'
     | '/admin/categorias'
@@ -147,6 +169,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
+    | '/login'
+    | '/pedidos'
     | '/produtos'
     | '/sitemap.xml'
     | '/admin/categorias'
@@ -161,6 +185,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
+  LoginRoute: typeof LoginRoute
+  PedidosRoute: typeof PedidosRoute
   ProdutosRoute: typeof ProdutosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
@@ -180,6 +206,20 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof ProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedidos': {
+      id: '/pedidos'
+      path: '/pedidos'
+      fullPath: '/pedidos'
+      preLoaderRoute: typeof PedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -270,6 +310,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
+  LoginRoute: LoginRoute,
+  PedidosRoute: PedidosRoute,
   ProdutosRoute: ProdutosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProdutoIdRoute: ProdutoIdRoute,

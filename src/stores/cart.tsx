@@ -1,5 +1,10 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import type { Product } from "@/data/mock";
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | { path: string }[];
+};
 
 export type CartItem = {
   id: string;
@@ -31,7 +36,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const found = prev.find((i) => i.id === p.id);
       if (found) return prev.map((i) => (i.id === p.id ? { ...i, quantity: i.quantity + qty } : i));
-      return [...prev, { id: p.id, name: p.name, price: p.price, image: p.images[0], quantity: qty }];
+
+      const imagePath =
+        p.images && p.images.length > 0
+          ? typeof p.images[0] === "string"
+            ? p.images[0]
+            : (p.images[0] as any).path
+          : "";
+
+      return [...prev, { id: p.id, name: p.name, price: p.price, image: imagePath, quantity: qty }];
     });
     setOpen(true);
   };

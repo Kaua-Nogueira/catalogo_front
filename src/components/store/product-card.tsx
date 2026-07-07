@@ -3,9 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCart, type Product } from "@/stores/cart";
 import { currency } from "@/lib/format";
-import { useCart } from "@/stores/cart";
-import type { Product } from "@/data/mock";
 import { cn } from "@/lib/utils";
 
 const badgeMeta: Record<string, { label: string; className: string }> = {
@@ -26,56 +25,74 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
     >
       <Link
         to="/produto/$id"
-        params={{ id: product.id }}
+        params={{ id: product.slug || String(product.id) }}
         className="relative block aspect-square overflow-hidden bg-muted"
       >
-        <img
-          src={product.images[0]}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          loading="lazy"
-        />
+        <div className="absolute inset-0 bg-muted">
+          {product.images?.[0] && (
+            <img
+              src={((product.images[0] as any).path ?? product.images[0])?.startsWith('/storage') ? `http://localhost:8001${(product.images[0] as any).path ?? product.images[0]}` : ((product.images[0] as any).path ?? product.images[0])}
+              alt={product.name}
+              className={cn(
+                "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105",
+                (product.stock !== undefined && product.stock <= 0) && "opacity-50 grayscale-[40%]"
+              )}
+            />
+          )}
+        </div>
+        {product.stock !== undefined && product.stock <= 0 && (
+          <div className="absolute right-3 top-3">
+            <Badge className="bg-destructive text-destructive-foreground rounded-full border-0 px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+              Esgotado
+            </Badge>
+          </div>
+        )}
         {product.badges && product.badges.length > 0 && (
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
             {product.badges.map((b) => (
               <Badge
                 key={b}
-                className={cn("rounded-full border-0 px-2.5 py-0.5 text-[10px] font-medium", badgeMeta[b].className)}
+                className={cn(
+                  "rounded-full border-0 px-2.5 py-0.5 text-[10px] font-medium",
+                  badgeMeta[b].className,
+                )}
               >
                 {badgeMeta[b].label}
               </Badge>
             ))}
           </div>
         )}
-        <div className="pointer-events-none absolute inset-x-3 bottom-3 flex translate-y-3 justify-end opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <Button
-            size="sm"
-            className="pointer-events-auto h-9 rounded-xl shadow-elegant"
-            onClick={(e) => {
-              e.preventDefault();
-              add(product);
-            }}
-          >
-            <Plus className="mr-1 h-4 w-4" /> Adicionar
-          </Button>
-        </div>
+        {product.stock === undefined || product.stock > 0 ? (
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex translate-y-3 justify-end opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <Button
+              size="sm"
+              className="pointer-events-auto h-9 rounded-xl shadow-elegant"
+              onClick={(e) => {
+                e.preventDefault();
+                add(product);
+              }}
+            >
+              <Plus className="mr-1 h-4 w-4" /> Adicionar
+            </Button>
+          </div>
+        ) : null}
       </Link>
       <div className="flex flex-1 flex-col p-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          {product.categoryId}
+          {(product as any).category?.name || "Produto"}
         </p>
         <Link
           to="/produto/$id"
-          params={{ id: product.id }}
+          params={{ id: product.slug || String(product.id) }}
           className="mt-1 line-clamp-1 text-sm font-semibold hover:underline"
         >
           {product.name}
         </Link>
         <div className="mt-3 flex items-baseline gap-2">
           <span className="text-lg font-semibold tracking-tight">{currency(product.price)}</span>
-          {product.oldPrice && (
+          {product.old_price && (
             <span className="text-xs text-muted-foreground line-through">
-              {currency(product.oldPrice)}
+              {currency(product.old_price)}
             </span>
           )}
         </div>

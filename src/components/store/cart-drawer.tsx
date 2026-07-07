@@ -12,7 +12,7 @@ export function CartDrawer() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+      <SheetContent className="flex w-[85vw] sm:w-full flex-col gap-0 p-0 sm:max-w-md">
         <SheetHeader className="border-b border-border px-6 py-5">
           <SheetTitle className="flex items-center gap-2 text-base">
             <ShoppingBag className="h-4 w-4" />
@@ -33,11 +33,7 @@ export function CartDrawer() {
               <p className="mt-1 text-xs text-muted-foreground">
                 Adicione produtos para começar seu pedido
               </p>
-              <Button
-                className="mt-6 rounded-xl"
-                onClick={() => setOpen(false)}
-                asChild
-              >
+              <Button className="mt-6 rounded-xl" onClick={() => setOpen(false)} asChild>
                 <Link to="/produtos">Explorar produtos</Link>
               </Button>
             </div>
@@ -54,7 +50,7 @@ export function CartDrawer() {
                     className="flex gap-3 rounded-2xl border border-border/60 bg-card p-3"
                   >
                     <img
-                      src={item.image}
+                      src={item.image?.startsWith('/storage') ? `http://localhost:8001${item.image}` : item.image}
                       alt={item.name}
                       className="h-20 w-20 shrink-0 rounded-xl object-cover"
                     />

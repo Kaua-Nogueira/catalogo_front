@@ -52,6 +52,7 @@ function AdminProdutos() {
     categoryId: "",
     status: "ativo",
     stock: "0",
+    badges: [] as string[],
     images: [] as string[],
   });
 
@@ -67,6 +68,7 @@ function AdminProdutos() {
       categoryId: "",
       status: "ativo",
       stock: "0",
+      badges: [] as string[],
       images: [] as string[],
     });
     setImages([]);
@@ -82,6 +84,7 @@ function AdminProdutos() {
       categoryId: p.category_id.toString(),
       status: p.available ? "ativo" : "inativo",
       stock: p.stock !== undefined ? p.stock.toString() : "0",
+      badges: p.badges || [],
       images: [],
     });
     setImages([]);
@@ -116,6 +119,20 @@ function AdminProdutos() {
       maximumFractionDigits: 2,
     }).format(floatValue);
     setForm({ ...form, price: formatted });
+  };
+
+  const handleOldPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let numeric = e.target.value.replace(/\D/g, "");
+    if (!numeric) {
+      setForm({ ...form, oldPrice: "" });
+      return;
+    }
+    const floatValue = parseInt(numeric, 10) / 100;
+    const formatted = new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(floatValue);
+    setForm({ ...form, oldPrice: formatted });
   };
 
   return (
@@ -160,9 +177,9 @@ function AdminProdutos() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label>Preço</Label>
+                  <Label>Preço de Venda</Label>
                   <Input
                     placeholder="0,00"
                     className="h-11 rounded-xl"
@@ -170,6 +187,17 @@ function AdminProdutos() {
                     onChange={handlePriceChange}
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label>Preço Original (Riscado)</Label>
+                  <Input
+                    placeholder="0,00"
+                    className="h-11 rounded-xl"
+                    value={form.oldPrice}
+                    onChange={handleOldPriceChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Categoria</Label>
                   <Select
@@ -198,6 +226,34 @@ function AdminProdutos() {
                     value={form.stock}
                     onChange={(e) => setForm({ ...form, stock: e.target.value })}
                   />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Etiquetas (Badges)</Label>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {["Frete grátis", "Mais vendido", "Destaque", "Oferta", "Novidade", "Tendência"].map((badge) => {
+                    const isSelected = form.badges.includes(badge);
+                    return (
+                      <button
+                        key={badge}
+                        type="button"
+                        onClick={() => {
+                          const next = isSelected
+                            ? form.badges.filter((b) => b !== badge)
+                            : [...form.badges, badge];
+                          setForm({ ...form, badges: next });
+                        }}
+                        className={cn(
+                          "rounded-full px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
+                        )}
+                      >
+                        {badge}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div className="grid gap-2">
@@ -282,6 +338,7 @@ function AdminProdutos() {
                     old_price: parsedOldPrice,
                     available: form.status === "ativo",
                     stock: parseInt(form.stock, 10) || 0,
+                    badges: form.badges,
                     images: images
                   };
 

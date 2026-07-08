@@ -17,7 +17,7 @@ export function CartDrawer() {
           <SheetTitle className="flex items-center gap-2 text-base">
             <ShoppingBag className="h-4 w-4" />
             Seu carrinho
-            <span className="ml-auto text-xs font-normal text-muted-foreground">
+            <span className="ml-auto mr-8 text-xs font-normal text-muted-foreground">
               {items.length} {items.length === 1 ? "item" : "itens"}
             </span>
           </SheetTitle>

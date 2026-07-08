@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Search, ShoppingBag, X } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,17 @@ export function StoreLayout({ children }: { children: ReactNode }) {
   const { data: categories = [] } = useCategories();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const q = formData.get("q") as string;
+    navigate({
+      to: "/produtos",
+      search: { q: q?.trim() || undefined } as any,
+    });
+    setMobileOpen(false);
+  };
 
   const nav = [
     { to: "/", label: "Início" },
@@ -53,10 +64,10 @@ export function StoreLayout({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
-          <div className="relative ml-auto hidden max-w-sm flex-1 md:block">
+          <form onSubmit={handleSearch} className="relative ml-auto hidden max-w-sm flex-1 md:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Buscar produtos..." className="h-10 rounded-xl pl-9" />
-          </div>
+            <Input name="q" placeholder="Buscar produtos..." className="h-10 rounded-xl pl-9" />
+          </form>
 
           <div className="ml-auto flex items-center gap-1.5">
             <Button
@@ -103,10 +114,10 @@ export function StoreLayout({ children }: { children: ReactNode }) {
               className="overflow-hidden border-t border-border/60 md:hidden"
             >
               <div className="space-y-3 px-4 py-4">
-                <div className="relative">
+                <form onSubmit={handleSearch} className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Buscar produtos..." className="h-10 rounded-xl pl-9" />
-                </div>
+                  <Input name="q" placeholder="Buscar produtos..." className="h-10 rounded-xl pl-9" />
+                </form>
                 <div className="flex flex-col">
                   {nav.map((n) => (
                     <Link

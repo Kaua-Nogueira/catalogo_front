@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { StoreLayout } from "@/components/store/store-layout";
@@ -9,7 +9,18 @@ import { Button } from "@/components/ui/button";
 import { useProducts, useCategories } from "@/hooks/useStoreData";
 import { cn } from "@/lib/utils";
 
+type ProductSearch = {
+  q?: string;
+  cat?: string;
+};
+
 export const Route = createFileRoute("/produtos")({
+  validateSearch: (search: Record<string, unknown>): ProductSearch => {
+    return {
+      q: (search.q as string) || undefined,
+      cat: (search.cat as string) || undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Produtos — Nimbus Store" },
@@ -20,9 +31,34 @@ export const Route = createFileRoute("/produtos")({
 });
 
 function ProdutosPage() {
-  const [query, setQuery] = useState("");
-  const [cat, setCat] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const [query, setQuery] = useState(search.q || "");
+  const [cat, setCat] = useState<string | null>(search.cat || null);
   const [sort, setSort] = useState<"recent" | "asc" | "desc">("recent");
+
+  useEffect(() => {
+    setQuery(search.q || "");
+  }, [search.q]);
+
+  useEffect(() => {
+    setCat(search.cat || null);
+  }, [search.cat]);
+
+  const handleSearchChange = (val: string) => {
+    setQuery(val);
+    navigate({
+      search: (prev) => ({ ...prev, q: val || undefined }),
+      replace: true,
+    });
+  };
+
+  const handleCatChange = (newCat: string | null) => {
+    setCat(newCat);
+    navigate({
+      search: (prev) => ({ ...prev, cat: newCat || undefined }),
+    });
+  };
 
   const { data: categories = [], isLoading: isLoadingCats } = useCategories();
   const { data: productsData, isLoading: isLoadingProducts } = useProducts({
@@ -49,7 +85,7 @@ function ProdutosPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Buscar produtos..."
               className="h-11 rounded-xl pl-9"
             />
@@ -73,17 +109,17 @@ function ProdutosPage() {
             variant={cat === null ? "default" : "outline"}
             size="sm"
             className={cn("h-9 shrink-0 rounded-full")}
-            onClick={() => setCat(null)}
+            onClick={() => handleCatChange(null)}
           >
             Todos
           </Button>
           {categories.map((c) => (
             <Button
               key={c.id}
-              variant={cat === c.id ? "default" : "outline"}
+              variant={String(cat) === String(c.id) ? "default" : "outline"}
               size="sm"
               className="h-9 shrink-0 rounded-full"
-              onClick={() => setCat(c.id)}
+              onClick={() => handleCatChange(String(c.id))}
             >
               {c.name}
             </Button>

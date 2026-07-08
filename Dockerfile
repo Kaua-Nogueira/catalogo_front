@@ -14,7 +14,7 @@ COPY . .
 
 # Set build argument for Vite API URL (injected at build time)
 ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL:-http://localhost:8001/api/v1}
+ENV VITE_API_URL=${VITE_API_URL:-https://catalogo-online-back.vs5wec.easypanel.host/api/v1}
 
 # Build the project (generates .output directory)
 RUN npm run build

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useAuth } from "@/stores/auth";
 
-// Assuming Laravel is running locally on port 8001
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8001/api/v1";
+// Production fallback URL
+const API_URL = import.meta.env.VITE_API_URL || "https://catalogo-online-back.vs5wec.easypanel.host/api/v1";
 
 export const api = axios.create({
   baseURL: API_URL,

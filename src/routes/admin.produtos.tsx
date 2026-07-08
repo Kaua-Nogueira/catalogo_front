@@ -181,7 +181,7 @@ function AdminProdutos() {
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>
+                        <SelectItem key={c.id} value={c.id.toString()}>
                           {c.name}
                         </SelectItem>
                       ))}

@@ -27,6 +27,7 @@ import { useAdminProducts, useAdminCategories, useCreateProduct, useUpdateProduc
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/produtos")({
   component: AdminProdutos,

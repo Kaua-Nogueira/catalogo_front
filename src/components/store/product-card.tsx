@@ -11,6 +11,12 @@ const badgeMeta: Record<string, { label: string; className: string }> = {
   novo: { label: "Novo", className: "bg-primary text-primary-foreground" },
   promo: { label: "Promo", className: "bg-destructive text-destructive-foreground" },
   top: { label: "Mais vendido", className: "bg-warning text-warning-foreground" },
+  destaque: { label: "Destaque", className: "bg-primary text-primary-foreground" },
+  premium: { label: "Premium", className: "bg-indigo-600 text-white" },
+  oferta: { label: "Oferta", className: "bg-destructive text-destructive-foreground" },
+  tendencia: { label: "Tendência", className: "bg-amber-600 text-white" },
+  "mais vendido": { label: "Mais vendido", className: "bg-warning text-warning-foreground" },
+  "frete gratis": { label: "Frete grátis", className: "bg-emerald-600 text-white" },
 };
 
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
@@ -49,17 +55,24 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         )}
         {product.badges && product.badges.length > 0 && (
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-            {product.badges.map((b) => (
-              <Badge
-                key={b}
-                className={cn(
-                  "rounded-full border-0 px-2.5 py-0.5 text-[10px] font-medium",
-                  badgeMeta[b].className,
-                )}
-              >
-                {badgeMeta[b].label}
-              </Badge>
-            ))}
+            {product.badges.map((b) => {
+              const normalized = String(b).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              const meta = badgeMeta[normalized] || {
+                label: b,
+                className: "bg-secondary text-secondary-foreground"
+              };
+              return (
+                <Badge
+                  key={b}
+                  className={cn(
+                    "rounded-full border-0 px-2.5 py-0.5 text-[10px] font-medium",
+                    meta.className,
+                  )}
+                >
+                  {meta.label}
+                </Badge>
+              );
+            })}
           </div>
         )}
         {product.stock === undefined || product.stock > 0 ? (

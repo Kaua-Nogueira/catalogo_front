@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import { Menu, Search, ShoppingBag, X, Sun, Moon } from "lucide-react";
 import { useState, type ReactNode, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,10 @@ import { Footer } from "@/components/store/footer";
 import { useCart } from "@/stores/cart";
 import { useStoreConfig, useCategories } from "@/hooks/useStoreData";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/stores/theme";
 
 export function StoreLayout({ children }: { children: ReactNode }) {
+  const { theme, toggle } = useTheme();
   const { count, setOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: config } = useStoreConfig();
@@ -96,6 +98,16 @@ export function StoreLayout({ children }: { children: ReactNode }) {
             <Button
               variant="ghost"
               size="icon"
+              className="rounded-xl"
+              onClick={toggle}
+              aria-label="Alternar tema"
+            >
+              {theme === "dark" ? <Sun className="h-5 w-5 text-amber-500" /> : <Moon className="h-5 w-5" />}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
               className="rounded-xl md:hidden"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Menu"
@@ -111,7 +123,7 @@ export function StoreLayout({ children }: { children: ReactNode }) {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-t border-border/60 md:hidden"
+              className="overflow-hidden border-t border-border/60 bg-background md:hidden"
             >
               <div className="space-y-3 px-4 py-4">
                 <form onSubmit={handleSearch} className="relative">

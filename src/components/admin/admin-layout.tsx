@@ -10,12 +10,15 @@ import {
   ShoppingBag,
   Bell,
   Search,
+  LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/stores/auth";
-import { LogOut } from "lucide-react";
+import { useTheme } from "@/stores/theme";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -26,6 +29,7 @@ const nav = [
 ];
 
 export function AdminLayout() {
+  const { theme, toggle } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -101,6 +105,9 @@ export function AdminLayout() {
             <Input placeholder="Buscar em tudo..." className="h-10 rounded-xl pl-9" />
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="rounded-xl" onClick={toggle} aria-label="Alternar tema">
+              {theme === "dark" ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4" />}
+            </Button>
             <Button variant="ghost" size="icon" className="rounded-xl">
               <Bell className="h-4 w-4" />
             </Button>
